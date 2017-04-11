@@ -25,7 +25,7 @@ namespace ClientTest_RobotControl
         private bool isRunning = true;
         private NetworkStream networkStream_sender, networkStream_receiver;
         private Byte[] recBytes = new Byte[8];
-        private Byte[] sendBytes = new Byte[4];
+        private Byte[][] sendBytes;
         private int DELAY_TIME_THREAD = 10; // ms
         private const int MAX_WAIT_UNTIL_RETURN = 2000;
         private int duration = 0;
@@ -71,6 +71,15 @@ namespace ClientTest_RobotControl
         {
             InitializeComponent();
 
+            sendBytes = new byte[2][];
+
+            // Initialize the packaged data array with default values
+            for (int i = 0; i < 2; i++)
+            {
+                sendBytes[i] = new byte[8];
+                for (int j = 0; j < 8; j++) sendBytes[i][j] = 0;
+            }
+
             // Start sender loop
             thread_sender = new Thread(loop_sender);
             thread_sender.Start();
@@ -95,20 +104,22 @@ namespace ClientTest_RobotControl
                         recBytes = receiveData();
 
                         // Check motor id
-                        if (recBytes[1] == 1) {
+                        if (recBytes[1] == 1)
+                        {
                             if ((recBytes[(int)Incoming_Package_Content.in_action] == (int)RobotActions.action_nothingToDo))
                             {
                                 lockAction1 = false;
-                                for (int i = 0; i < sendBytes.Length; i++) sendBytes[i] = 0;
+                                for (int j = 0; j < 8; j++) if (j != 1) sendBytes[0][j] = 0;
                             }
 
                             if ((!lockAction1) & (recBytes[(int)Incoming_Package_Content.in_action] == (int)RobotActions.action_newPosition))
                             {
                                 lockAction1 = true;
-                                Debug.WriteLine("action_newPosition1");
-                                sendBytes[0] = recBytes[0]; // action
-                                sendBytes[1] = recBytes[1]; // Motor id
-                                sendBytes[2] = (byte)ActionStates.state_pending; // Motor angle
+                                //Debug.WriteLine("recBytes[1]: " + recBytes[1]);
+
+                                sendBytes[0][0] = recBytes[0]; // action
+                                sendBytes[0][1] = recBytes[1]; // Motor id
+                                sendBytes[0][2] = (byte)ActionStates.state_pending; // Motor angle
                             }
                         }
 
@@ -118,16 +129,17 @@ namespace ClientTest_RobotControl
                             if ((recBytes[(int)Incoming_Package_Content.in_action] == (int)RobotActions.action_nothingToDo))
                             {
                                 lockAction2 = false;
-                                for (int i = 0; i < sendBytes.Length; i++) sendBytes[i] = 0;
+                                for (int j = 0; j < 8; j++) if (j != 1) sendBytes[1][j] = 0;
+
                             }
 
                             if ((!lockAction2) & (recBytes[(int)Incoming_Package_Content.in_action] == (int)RobotActions.action_newPosition))
                             {
                                 lockAction2 = true;
-                                Debug.WriteLine("action_newPosition2");
-                                sendBytes[0] = recBytes[0]; // action
-                                sendBytes[1] = recBytes[1]; // Motor id
-                                sendBytes[2] = (byte)ActionStates.state_pending; // Motor angle
+                                //Debug.WriteLine("recBytes[1]: " + recBytes[1]);
+                                sendBytes[1][0] = recBytes[0]; // action
+                                sendBytes[1][1] = recBytes[1]; // Motor id
+                                sendBytes[1][2] = (byte)ActionStates.state_pending; // Motor angle
                             }
                         }
 
@@ -169,46 +181,46 @@ namespace ClientTest_RobotControl
 
         private void loop_sender()
         {
-            while (true)
+            //while (true)
+            //{
+            try
             {
-                try
+                while (!tcpClient_sender.Connected)
                 {
-                    while (!tcpClient_sender.Connected)
-                    {
-                        Debug.WriteLine(" >> Start client sender");
-                        tcpClient_sender.Connect(ip, port_server_send);
+                    Debug.WriteLine(" >> Start client sender");
+                    tcpClient_sender.Connect(ip, port_server_send);
                     Debug.WriteLine(" >> Connected as sender");
-                    }
-                    networkStream_sender = tcpClient_sender.GetStream();
                 }
-                catch (System.Net.Sockets.SocketException e)
-                {
-                    Debug.WriteLine(" >> Cant connect as sender to server.\n");
-                    Debug.WriteLine(" >> " + e.ToString());
-                }
+                networkStream_sender = tcpClient_sender.GetStream();
             }
+            catch (System.Net.Sockets.SocketException e)
+            {
+                Debug.WriteLine(" >> Cant connect as sender to server.\n");
+                Debug.WriteLine(" >> " + e.ToString());
+            }
+            //}
         }
 
         private void loop_receiver()
         {
-            while (true)
+            //while (true)
+            //{
+            try
             {
-                try
+                while (!tcpClient_receiver.Connected)
                 {
-                    while (!tcpClient_receiver.Connected)
-                    {
-                        Debug.WriteLine(" >> Start client receiver");
-                        tcpClient_receiver.Connect(ip, port_server_receive);
+                    Debug.WriteLine(" >> Start client receiver");
+                    tcpClient_receiver.Connect(ip, port_server_receive);
                     Debug.WriteLine(" >> Connected as receiver");
-                    }
-                    networkStream_receiver = tcpClient_receiver.GetStream();
                 }
-                catch (System.Net.Sockets.SocketException e)
-                {
-                    Debug.WriteLine(" >> Cant connect as receiver to server.\n");
-                    Debug.WriteLine(" >> " + e.ToString());
-                }
+                networkStream_receiver = tcpClient_receiver.GetStream();
             }
+            catch (System.Net.Sockets.SocketException e)
+            {
+                Debug.WriteLine(" >> Cant connect as receiver to server.\n");
+                Debug.WriteLine(" >> " + e.ToString());
+            }
+            //}
         }
 
         private Byte[] receiveData()
@@ -227,14 +239,14 @@ namespace ClientTest_RobotControl
                     receiveBytes[4] = mPosTemp;
                     int motorAngle = BitConverter.ToInt16(receiveBytes, 3);
                     short motorDir = receiveBytes[5];
-                    Debug.WriteLine( motorId + ";" +  motorAngle + ";" + motorVel + ";" + action + ";" +  motorDir);
+                    //Debug.WriteLine( motorId + ";" +  motorAngle + ";" + motorVel + ";" + action + ";" +  motorDir);
                 }
 
             }
             return receiveBytes;
         }
 
-        private void sendData(Byte[] data)
+        private void sendData(Byte[][] data)
         {
             if (networkStream_receiver != null)
             {
@@ -242,8 +254,15 @@ namespace ClientTest_RobotControl
                 {
                     //string stringToSend = "TestMessage;1:1:3;";
                     //Byte[] sendBytes = Encoding.ASCII.GetBytes(stringToSend);
-                    networkStream_receiver.Write(data, 0, data.Length);
-                    networkStream_receiver.Flush();
+                    for (int i = 0; i < 2; i++)
+                    {
+                        for (int k = 0; k < 8; k++)
+                        {
+                            Debug.WriteLine("Send data[" + k + "]: " + data[i][k]);
+                        }
+                        networkStream_receiver.Write(data[i], 0, data[i].Length);
+                        networkStream_receiver.Flush();
+                    }
                 }
 
             }
@@ -251,13 +270,18 @@ namespace ClientTest_RobotControl
 
         private void button_Motor1_ok_Click(object sender, EventArgs e)
         {
-            statesBack[0] = (int)ActionStates.state_complete;
+            sendBytes[0][2] = (int)ActionStates.state_complete;
         }
 
+        private void buttonAllMotor_ok_Click(object sender, EventArgs e)
+        {
+            sendBytes[0][2] = (int)ActionStates.state_complete;
+            sendBytes[1][2] = (int)ActionStates.state_complete;
+        }
 
         private void button_Motor2_ok_Click(object sender, EventArgs e)
         {
-            statesBack[1] = (int)ActionStates.state_complete;
+            sendBytes[1][2] = (int)ActionStates.state_complete;
         }
 
         private void button_Motor3_ok_Click(object sender, EventArgs e)
