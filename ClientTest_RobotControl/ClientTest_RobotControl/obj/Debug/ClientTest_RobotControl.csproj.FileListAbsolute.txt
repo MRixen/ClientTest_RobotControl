@@ -1,0 +1,9 @@
+C:\Users\Manuel.Rixen\Documents\GitHub\ClientTest_RobotControl\ClientTest_RobotControl\ClientTest_RobotControl\bin\Debug\ClientTest_RobotControl.exe.config
+C:\Users\Manuel.Rixen\Documents\GitHub\ClientTest_RobotControl\ClientTest_RobotControl\ClientTest_RobotControl\bin\Debug\ClientTest_RobotControl.exe
+C:\Users\Manuel.Rixen\Documents\GitHub\ClientTest_RobotControl\ClientTest_RobotControl\ClientTest_RobotControl\bin\Debug\ClientTest_RobotControl.pdb
+C:\Users\Manuel.Rixen\Documents\GitHub\ClientTest_RobotControl\ClientTest_RobotControl\ClientTest_RobotControl\obj\Debug\ClientTest_RobotControl.csprojResolveAssemblyReference.cache
+C:\Users\Manuel.Rixen\Documents\GitHub\ClientTest_RobotControl\ClientTest_RobotControl\ClientTest_RobotControl\obj\Debug\ClientTest_RobotControl.Form1.resources
+C:\Users\Manuel.Rixen\Documents\GitHub\ClientTest_RobotControl\ClientTest_RobotControl\ClientTest_RobotControl\obj\Debug\ClientTest_RobotControl.Properties.Resources.resources
+C:\Users\Manuel.Rixen\Documents\GitHub\ClientTest_RobotControl\ClientTest_RobotControl\ClientTest_RobotControl\obj\Debug\ClientTest_RobotControl.csproj.GenerateResource.Cache
+C:\Users\Manuel.Rixen\Documents\GitHub\ClientTest_RobotControl\ClientTest_RobotControl\ClientTest_RobotControl\obj\Debug\ClientTest_RobotControl.exe
+C:\Users\Manuel.Rixen\Documents\GitHub\ClientTest_RobotControl\ClientTest_RobotControl\ClientTest_RobotControl\obj\Debug\ClientTest_RobotControl.pdb
